@@ -29,11 +29,11 @@ var style = {
       "type": "vector",
       // "url": "mapbox://map-id"
       // "url": "http://tileserver.com/layer.json", 
-      "tiles": [location.origin+"/countries/{z}/{x}/{y}.pbf"],
+      "tiles": [location.origin+location.pathname+"countries/{z}/{x}/{y}.pbf"],
       "maxzoom": 6
     }
   },
-  "glyphs": location.origin+"/font/{fontstack}/{range}.pbf",
+  "glyphs": location.origin+location.pathname+"font/{fontstack}/{range}.pbf",
   "layers": [{
     "id": "background",
     "type": "background",
