@@ -11,8 +11,7 @@
     "basename": "countries",
     "tilejson": "2.0.0",
     "scheme": "xyz",
-    "tiles": ["http://klokantech.github.io/mapbox-gl-js-offline-example/countries/{z}/{x}/{y}.pbf"],
-    "grids": ["http://klokantech.github.io/mapbox-gl-js-offline-example/countries/{z}/{x}/{y}.grid.json"],
+    "tiles": ["https://cdn.rawgit.com/klokantech/mapbox-gl-js-offline-example/gh-pages/countries/{z}/{x}/{y}.pbf"],
     "vector_layers": [{
         "id": "state",
         "description": "",
