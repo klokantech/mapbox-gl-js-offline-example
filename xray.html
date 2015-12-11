@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>MapBox GL JS Offline Example</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+<!--
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.10.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.10.0/mapbox-gl.css' rel='stylesheet' />
+-->
+    <script src='mapbox-gl.js'></script>
+    <link href='mapbox-gl.css' rel='stylesheet' />
+    <style>
+      body {background: #000;}
+      #map {position:absolute;top:0;left:0;right:200px;bottom:0;}
+      #layerList {position:absolute;top:5px;right:0;bottom:50%;width:190px;overflow:auto;}
+      #layerList div {color:#ccc;}
+      #layerList div div {width:15px;height:15px;display:inline-block;}
+      #propertyList {position:absolute;top:50%;bottom:0;right:0;width:190px;overflow:auto;color:#fff;}
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+<div id="layerList"></div>
+<pre id="propertyList"></pre>
+<script>
+// mapboxgl.accessToken = 'pk.your-own-code-here-for-online-maps';
+mapboxgl.accessToken = 'NOT-REQUIRED-WITH-YOUR-VECTOR-TILES-DATA';
+
+
+var map = new mapboxgl.Map({
+  container: 'map',
+  center: [0, 0],
+  zoom: 1
+});
+
+map.addControl(new mapboxgl.Navigation());
+
+var setCenterFromLayer = true;
+var tileJsonUrl = 'http://tileserver.maptiler.com/zurich.json';
+function parseHash() {
+  var hash = window.location.hash.substr(1);
+  if (hash) {
+    hash = hash.replace(/%7C/g, '|');
+    parts = hash.split('|');
+    if (parts.length > 0 && parts[0].length > 0) {
+      tileJsonUrl = parts[0] || tileJsonUrl;
+    }
+    if (parts.length > 3) {
+      map.setCenter([parseFloat(parts[2]), parseFloat(parts[1])]);
+      map.setZoom(parseInt(parts[3]));
+      setCenterFromLayer = false;
+    }
+  }
+}
+parseHash();
+
+map.on('moveend', function(e) {
+  var lonLat = map.getCenter();
+  window.location.hash = tileJsonUrl + '|' + lonLat.lat + '|' + lonLat.lng + '|' + map.getZoom();
+});
+
+function generateColor(str) {
+  var rgb = [0, 0, 0];
+  for (var i = 0; i < str.length; i++) {
+      var v = str.charCodeAt(i);
+      rgb[v % 3] = (rgb[i % 3] + (13*(v%13))) % 12;
+  }
+  var r = 4 + rgb[0];
+  var g = 4 + rgb[1];
+  var b = 4 + rgb[2];
+  r = (r * 16) + r;
+  g = (g * 16) + g;
+  b = (b * 16) + b;
+  return [r,g,b,1];
+};
+
+function initLayer(data) {
+  var layer;
+  var layerList = document.getElementById('layerList');
+  var layers_ = [];
+  data['vector_layers'].forEach(function(el) {
+    var color = generateColor(el['id']);
+    var colorText = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',' + color[3] + ')';
+    layers_.push({
+      id: el['id'] + Math.random(),
+      source: 'vector_layer_',
+      'source-layer': el['id'],
+      interactive: true,
+      type: 'fill',
+      paint: {'fill-color': colorText},
+      "filter": [
+        "all",
+        [
+          "==",
+          "$type",
+          "Polygon"
+        ]
+      ]
+    });
+    layers_.push({
+      id: el['id'] + Math.random(),
+      source: 'vector_layer_',
+      'source-layer': el['id'],
+      interactive: true,
+      type: 'line',
+      paint: {'line-color': colorText},
+      "filter": [
+        "all",
+        [
+          "==",
+          "$type",
+          "LineString"
+        ]
+      ]
+    });
+
+    var item = document.createElement('div');
+    item.innerHTML = '<div style="' +
+      'background:rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',1);' +
+      '"></div> ' + el['id'];
+
+    layerList.appendChild(item);
+  });
+
+  map.setStyle({
+    version: 8,
+    sources: {
+      'vector_layer_': {
+        type: 'vector',
+        tiles: data['tiles'],
+        minzoom: data['minzoom'],
+        maxzoom: data['maxzoom']
+      }
+    },
+    layers: layers_
+  });
+
+  if (setCenterFromLayer) {
+    var center = data['center'];
+    if (typeof center == 'string') {
+      center = center.split(',');
+    }
+    map.setCenter([parseFloat(center[0]), parseFloat(center[1])]);
+    map.setZoom(parseInt(center[2], 10));
+  }
+
+  return layer;
+}
+
+
+function loadJson(callback) {
+  //var script = document.createElement('script');
+  //script.src = tileJsonUrl + '?callback=initLayer'
+  //document.getElementsByTagName('head')[0].appendChild(script);
+
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (xhttp.readyState == 4 && xhttp.status == 200) {
+      callback(xhttp.response, initLayer(xhttp.response));
+    }
+  };
+  xhttp.responseType = 'json';
+  xhttp.open("GET", tileJsonUrl, true);
+  xhttp.send();
+}
+
+loadJson(function(data, layer) {});
+
+var propertyList = document.getElementById('propertyList');
+map.on('mousemove', function(e) {
+  propertyList.innerHTML = '';
+  map.featuresAt(e.point, {radius: 3}, function(err, features) {
+    if (err) throw err;
+    if (features[0]) {
+      propertyList.innerHTML = JSON.stringify(features[0].properties, null, 2);
+    }
+  });
+});
+
+</script>
+
+</body>
+</html>
