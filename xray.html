@@ -88,32 +88,8 @@ function initLayer(data) {
       source: 'vector_layer_',
       'source-layer': el['id'],
       interactive: true,
-      type: 'fill',
-      paint: {'fill-color': colorText},
-      "filter": [
-        "all",
-        [
-          "==",
-          "$type",
-          "Polygon"
-        ]
-      ]
-    });
-    layers_.push({
-      id: el['id'] + Math.random(),
-      source: 'vector_layer_',
-      'source-layer': el['id'],
-      interactive: true,
       type: 'line',
-      paint: {'line-color': colorText},
-      "filter": [
-        "all",
-        [
-          "==",
-          "$type",
-          "LineString"
-        ]
-      ]
+      paint: {'line-color': colorText}
     });
 
     var item = document.createElement('div');
