@@ -5,8 +5,8 @@
     <title>MapBox GL JS Offline Example</title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
 <!--
-    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.10.0/mapbox-gl.js'></script>
-    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.10.0/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.49.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.49.0/mapbox-gl.css' rel='stylesheet' />
 -->
     <script src='mapbox-gl.js'></script>
     <link href='mapbox-gl.css' rel='stylesheet' />
@@ -71,15 +71,6 @@ var style = {
       "line-opacity":0.8,
     }
   // rainbow start
-  },{
-    "id": "area-white",
-    "type": "fill",
-    "source": "countries",
-    "filter":["in","ADM0_A3",'ATA'],
-    "source-layer": "country",
-    "paint": {
-      "fill-color": "#F0F8FF"
-    }
   },{
     "id": "area-white",
     "type": "fill",
@@ -273,7 +264,7 @@ var map = new mapboxgl.Map({
   style: style
 });
 
-map.addControl(new mapboxgl.Navigation());
+map.addControl(new mapboxgl.NavigationControl());
 </script>
 
 </body>
